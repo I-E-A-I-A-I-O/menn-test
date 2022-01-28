@@ -85,14 +85,14 @@ export default function Name({ userName }: NamePageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    const db = (await clientPromise).db();
+    /*const db = (await clientPromise).db();
     const collection = db.collection(process.env.COLLECTION_N).find();
     const names = await collection.toArray();
     const paths = names.map((name) => ({
         params: { id: name.name }
-    }))
+    }))*/
     return {
-        paths: paths,
+        paths: [],
         fallback: 'blocking'
     }
 }
