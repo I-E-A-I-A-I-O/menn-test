@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -20,7 +20,10 @@ import {
   Button,
   ScrollView,
   StyleProp,
-  TextStyle
+  TextStyle,
+  Platform,
+  Alert,
+  NativeModules
 } from 'react-native';
 
 import {
@@ -30,6 +33,14 @@ import {
 import dynamicLinks, { FirebaseDynamicLinksTypes } from '@react-native-firebase/dynamic-links';
 import { LinkingOptions, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
+import firebase from '@react-native-firebase/app';
+import messaging from '@react-native-firebase/messaging';
+import PushNotification, { ChannelObject } from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
+import DeviceInfo from 'react-native-device-info';
+
+const API_URL = 'http://192.168.0.190:3000';
 
 const linking: LinkingOptions<ReactNavigation.RootParamList> = {
   prefixes: [
@@ -84,12 +95,23 @@ type RootStackParamList = {
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const Home = ({ route }: HomeProps) => {
+  const [requestActive, onRequestActive] = useState(false);
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle: ViewStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     flex: 1
   };
+
+  const postNotification = async () => {
+    onRequestActive(true);
+    await fetch(`${API_URL}/api/notifications`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({body: `Notification from ${route.params.id}`})
+    });
+    onRequestActive(false);
+  }
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -99,7 +121,7 @@ const Home = ({ route }: HomeProps) => {
             This page is for {route.params.id}!
           </Text>
           <View style={{maxWidth: '50%', flex: 1, marginLeft: '25%', marginTop: 40}}>
-            <Button title='Send Notification'  />  
+            <Button title='Send Notification' disabled={requestActive} onPress={postNotification} />  
           </View>
         </View>
       </ScrollView>
@@ -131,6 +153,56 @@ const Nothing = () => {
 const StackNavigator = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
+  
+  useEffect(() => {
+      (async () => {
+        if (!messaging().isDeviceRegisteredForRemoteMessages)
+          await messaging().registerDeviceForRemoteMessages();
+      
+          const token = await messaging().getToken();
+          postToken(token);
+          messaging().onTokenRefresh((token) => {
+            postToken(token);
+          });
+      })();
+
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log(JSON.stringify(remoteMessage));
+        showNotification(remoteMessage);
+      });
+
+      return unsubscribe;
+
+  }, []);
+
+const postToken = async (token: string) => {
+  let deviceId: string = DeviceInfo.getUniqueId();
+
+  fetch(`${API_URL}/api/tokens`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({token, deviceId})
+  });
+}
+
+const showNotification = (
+    notification: FirebaseMessagingTypes.RemoteMessage,
+  ) => {
+    if (Platform.OS === 'android') {
+      PushNotification.localNotification({
+        channelId: notification.notification?.android?.channelId,
+        title: notification.notification?.title,
+        message: notification.notification?.body!,
+      });
+    } else {
+      PushNotificationIOS.addNotificationRequest({
+        title: notification.notification?.title,
+        body: notification.notification?.body,
+        id: notification.messageId!
+      });
+    }
+  };
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle: StyleProp<{backgroundColor?: string | undefined}> = {

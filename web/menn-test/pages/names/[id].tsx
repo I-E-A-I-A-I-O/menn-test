@@ -10,7 +10,6 @@ interface NamePageProps {
 export default function Name({ userName }: NamePageProps) {
     const [message, onMessageChanged] = useState("");
     const [showMessage, onShowMessageChanged] = useState(false);
-    const [isError, onIsErrorChanged] = useState(false);
     const [requestActive, onRequestActiveChange] = useState(false);
   
     const doLinkPost = async () => {
@@ -24,17 +23,24 @@ export default function Name({ userName }: NamePageProps) {
       const body: {message: string, link: string}  = await res.json();
 
       if (res.status == 201) {
-        await navigator.clipboard.writeText(body.link);
+        onMessageChanged(`Share link: ${body.link}`);
+      }
+      else {
+        onMessageChanged(body.message);
       }
 
-      onIsErrorChanged(res.status != 201);
-      onMessageChanged(body.message);
       onRequestActiveChange(false);
       onShowMessageChanged(true);
+    }
 
-      setTimeout(() => {
-        onShowMessageChanged(false);
-      }, 8000);
+    const postNotification = async () => {
+      onRequestActiveChange(true);
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({body: `Notification from admin`})
+      });
+      onRequestActiveChange(false);
     }
 
     return (
@@ -51,13 +57,14 @@ export default function Name({ userName }: NamePageProps) {
             </h1>
             { !showMessage ? 
               null
-              : <h2 className={isError ? styles.descriptionErr : styles.descriptionSus}>{message}</h2>
+              : <h2 className={styles.description}>{message}</h2>
             }
             <div className={styles.grid}>
               <a className={styles.card}>
               <button type='button' 
                   className={styles.createButton} 
                   disabled={requestActive}
+                  onClick={postNotification}
                   >
                   Send Notification
                 </button>
@@ -77,7 +84,7 @@ export default function Name({ userName }: NamePageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    const res = await fetch(`${process.env.API_URL}/api/names`, {
+    const res = await fetch(`${process.env.WEB_URL_PREFIX}/api/names`, {
         method: 'GET'
       });
     const names: {name: string}[] = await res.json();
