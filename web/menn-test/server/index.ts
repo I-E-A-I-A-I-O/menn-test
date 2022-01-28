@@ -6,7 +6,7 @@ import { tokenRouter } from "./routes/tokens.router";
 import { notificationRouter } from "./routes/notifications.router";
 import {connectToDatabase} from "./services/database.service";
 import admin, { ServiceAccount } from "firebase-admin";
-import serviceAccount from "./menn-app-firebase-adminsdk-hhiyx-c2b5ec8b07.json";
+import serviceAccount from "./menn-app-firebase-adminsdk-4k7sp-72bf6dce27.json";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({dev});
