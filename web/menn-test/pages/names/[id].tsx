@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import styles from '../../styles/Home.module.css'
+import clientPromise from '../../lib/mongodb';
 
 interface NamePageProps {
     userName: string
@@ -84,22 +85,22 @@ export default function Name({ userName }: NamePageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    const res = await fetch(`${process.env.WEB_URL_PREFIX}/api/names`, {
-        method: 'GET'
-      });
-    const names: {name: string}[] = await res.json();
+    const db = (await clientPromise).db();
+    const collection = db.collection(process.env.COLLECTION_N).find();
+    const names = await collection.toArray();
     const paths = names.map((name) => ({
         params: { id: name.name }
     }))
     return {
         paths: paths,
-        fallback: false
+        fallback: 'blocking'
     }
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
     const { id } = context.params;
     return {
-        props: { userName: id }
+        props: { userName: id },
+        revalidate: 600
     }
 }
