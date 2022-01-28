@@ -46,7 +46,7 @@ export default function Name({ userName }: NamePageProps) {
     return (
         <div className={styles.container}>
           <Head>
-            <title>{userName} Page</title>
+            <title>{userName}&apos; Page</title>
             <meta name="description" content="Auto generated name page" />
             <link rel="icon" href="/favicon.ico" />
           </Head>
