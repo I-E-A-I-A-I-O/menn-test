@@ -39,6 +39,7 @@
 .title a {
   color: #0070f3;
   text-decoration: none;
+  font-size: large;
 }
 
 .title a:hover,

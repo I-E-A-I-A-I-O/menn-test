@@ -1,5 +1,6 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import Link from 'next/link';
+import { Component, useState } from 'react'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
   const [isError, onIsErrorChanged] = useState(false);
   const [showMessage, onShowMessageChanged] = useState(false);
   const [requestActive, onRequestActiveChange] = useState(false);
+  const [lastName, onLastName] = useState("");
 
   const doPost = async () => {
     if (name.length == 0 || requestActive) {
@@ -15,20 +17,23 @@ export default function Home() {
     }
 
     onRequestActiveChange(true);
+
     const res = await fetch('/api/names', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({name}),
     });
-    const body: {message: string} = await res.json();
-    onIsErrorChanged(res.status != 201);
+
+    const body: {message: string, name?: string} = await res.json();
+
+    if (res.status === 201) {
+      onLastName(body.name);
+    }
+
+    onIsErrorChanged(res.status !== 201);
     onMessageChanged(body.message);
     onRequestActiveChange(false);
     onShowMessageChanged(true);
-
-    setTimeout(() => {
-      onShowMessageChanged(false);
-    }, 8000);
   }
 
   return (
@@ -45,7 +50,14 @@ export default function Home() {
         </h1>
         { !showMessage ? 
           null
-          : <h2 className={isError ? styles.descriptionErr : styles.descriptionSus}>{message}</h2>
+          : isError ? 
+          <h2 className={isError ? styles.descriptionErr : styles.descriptionSus}>{message}</h2>
+          : 
+          <Link href={`/names/${lastName}`} passHref>
+            <h4 className={styles.title}>
+              <a>{message} Click to visit {lastName}&apos;s Page.</a>
+            </h4>
+          </Link>
         }
         <div className={styles.grid}>
           <a className={styles.card}>

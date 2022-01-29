@@ -25,7 +25,7 @@ export const insertName = async (req: Request, res: Response) => {
             return res.status(500).json({message: "Error saving name."});
           }
 
-          res.status(201).json({message: 'Name saved.'});
+          res.status(201).json({message: 'Name saved.', name: name});
         }
     } catch (e) {
         res.status(500).json({message: "Error saving name.", ev: e});
