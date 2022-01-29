@@ -85,12 +85,6 @@ export default function Name({ userName }: NamePageProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-    /*const db = (await clientPromise).db();
-    const collection = db.collection(process.env.COLLECTION_N).find();
-    const names = await collection.toArray();
-    const paths = names.map((name) => ({
-        params: { id: name.name }
-    }))*/
     return {
         paths: [],
         fallback: 'blocking'
@@ -99,8 +93,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
     const { id } = context.params;
+
+    const db = (await clientPromise).db();
+    const result = await db.collection(process.env.COLLECTION_N).findOne({name: id});
+
+    if (!result) {
+      return {
+        notFound: true,
+        revalidate: 120
+      }
+    }
+
     return {
-        props: { userName: id },
-        revalidate: 600
+        props: { userName: id }
     }
 }

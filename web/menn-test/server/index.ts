@@ -10,13 +10,13 @@ import serviceAccount from "./menn-app-firebase-adminsdk-4k7sp-72bf6dce27.json";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({dev});
-const handle = app.getRequestHandler();
 const port = process.env.PORT || 3000;
 
 (async () => {
     try {
         await app.prepare();
         await connectToDatabase();
+        const handle = app.getRequestHandler();
         admin.initializeApp({credential: admin.credential.cert(serviceAccount as ServiceAccount)});
         const server = express();
         server.use(express.json());
