@@ -40,7 +40,7 @@ import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
 import DeviceInfo from 'react-native-device-info';
 
-const API_URL = 'http://192.168.0.190:3000';
+const API_URL = 'http://blakperl.com';
 
 const linking: LinkingOptions<ReactNavigation.RootParamList> = {
   prefixes: [
