@@ -18,18 +18,19 @@ export const createLink = async (req: Request, res: Response) => {
             suffix: {
               option: "SHORT"
             },
-            longDynamicLink: `${process.env.URL_PREFIX}/?link=${process.env.URL_PREFIX}/names/${userName}&apn=com.myapp&afl=https://play.google.com/store/apps/details?id=com.instagram.android&ofl=${process.env.WEB_URL_PREFIX}/names/${userName}`
+            longDynamicLink: `${process.env.URL_PREFIX}/?link=${process.env.URL_PREFIX}/names/${userName}&apn=com.myapp&afl=https://play.google.com/store/apps/details?id=com.instagram.android&ofl=http://blakperl.com/names/${userName}`
           })
       })
 
+      const jBody = await linkRes.json();
+
       if (linkRes.status != 200) {
-        return res.status(500).json({message: "Error generating the link.", link: "", /*lRes*/});
+        return res.status(500).json({message: "Error generating the link.", link: "", ev: jBody});
       }
 
-      const jBody = await linkRes.json();
       res.status(201).json({message: 'Link copied to clipboard.', link: jBody.shortLink});
     }
   } catch (e) {
-    res.status(500).json({message: "Error generating the link.", link: "", ev: e});
+    res.status(500).json({message: "Error generating the link.", link: ""});
   }
 }
