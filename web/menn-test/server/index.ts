@@ -7,6 +7,8 @@ import { notificationRouter } from "./routes/notifications.router";
 import {connectToDatabase} from "./services/database.service";
 import admin, { ServiceAccount } from "firebase-admin";
 import serviceAccount from "./menn-app-firebase-adminsdk-4k7sp-72bf6dce27.json";
+import cors from "cors";
+import helmet from "helmet";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({dev});
@@ -19,6 +21,8 @@ const port = process.env.PORT || 3000;
         const handle = app.getRequestHandler();
         admin.initializeApp({credential: admin.credential.cert(serviceAccount as ServiceAccount)});
         const server = express();
+        server.use(helmet());
+        server.use(cors());
         server.use(express.json());
 
         server.use('/api/links', LinksRouter);
