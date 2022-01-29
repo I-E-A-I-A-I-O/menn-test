@@ -21,8 +21,8 @@ const port = process.env.PORT || 3000;
         const handle = app.getRequestHandler();
         admin.initializeApp({credential: admin.credential.cert(serviceAccount as ServiceAccount)});
         const server = express();
-        server.use(helmet());
-        server.use(cors());
+        //server.use(helmet());
+        //server.use(cors());
         server.use(express.json());
 
         server.use('/api/links', LinksRouter);
