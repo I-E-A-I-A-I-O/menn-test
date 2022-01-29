@@ -34,3 +34,4 @@ yarn-error.log*
 .vercel
 
 menn-app-firebase-adminsdk-4k7sp-72bf6dce27.json
+dist

@@ -2,11 +2,12 @@
   "name": "menn-test",
   "private": true,
   "scripts": {
-    "dev": "ts-node --project tsconfig.server.json server/index.ts",
-    "build": "next build",
-    "start": "NODE_ENV=production next start",
-    "export": "next export",
-    "lint": "next lint"
+    "dev": "ts-node --project tsconfig.server.json server/server.ts",
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:next": "next build",
+    "build": "npm run build:next && npm run build:server",
+    "start": "node dist/server.js",
+    "export": "next export"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -11,7 +11,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 const dev = process.env.NODE_ENV !== "production";
-const app = next({dev});
+const app = next({dev: false});
 const port = process.env.PORT || 3000;
 
 (async () => {
